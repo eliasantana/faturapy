@@ -18,14 +18,38 @@ def conexao(sql):
     con.execute(sql)
 
 
+def query(sql):
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    return result
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
-    '''
-    sql = "CREATE TABLE teste2 (id INTEGER, TESTE VARCHAR(20))"
-    conexao(sql)
-    '''
     form = LoginForm()
-    return render_template('index.html', form=form)
+    loginform = form.username.data
+    passwordform = form.password.data
+
+    sql = "SELECT login, senha FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(loginform, passwordform)
+    result = query(sql)
+    lista = list(result)
+
+    if loginform == None and passwordform == None:
+        erro = ''
+    else:
+        erro = "Usuário ou senha inválidos!"
+
+    if len(lista) > 0:
+        loginDb = result[0]['login']
+        passworDb = result[0]['senha']
+
+        if loginDb == loginform and passworDb == passwordform:
+            return render_template('cadusuario.html')
+        else:
+            return render_template('index.html', form=form, erro=erro)
+    else:
+        return render_template('index.html', form=form, erro=erro)
 
 
 if __name__ == '__main__':
