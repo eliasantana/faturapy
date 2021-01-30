@@ -1,0 +1,53 @@
+<! DOCTYPE html >
+< html  lang = " en " >
+< cabeça >
+    < meta  charset = " UTF-8 " >
+    < título > FATURA - Sistema de Gerenciamento de Faturas </ título >
+
+    < link  href = " https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css " rel = " stylesheet " Integrity = " sha384-giJF6kkoqNQ00vy + HMDP7azOuL0xtbfIcadVr8HwjKinHin.css " rel = " stylesheet " Integrity = " sha384-giJF6kkoqNQ00vy + HMDP7azOuL0xtbfIcadVr8HwjKinHin = " anônimo " >
+    < link  href = " signin.css " rel = " stylesheet " >
+    < estilo >
+      . bd-placeholder-img {
+        tamanho da fonte : 1,125 rem ;
+        âncora de texto : meio;
+        -webkit-user-select : nenhum;
+        -moz-user-select : nenhum;
+        seleção do usuário : nenhum;
+      }
+
+      @media ( largura mínima : 768 px ) {
+        . bd-placeholder-img-lg {
+          tamanho da fonte : 3,5 rem ;
+        }
+      }
+    </ estilo >
+</ head >
+< corpo >
+< main  class = " form-signin " >
+
+      < div  class = " container-sm " align = " center " style = " position: absolute; height: 116px; top: 200px; width: 100%; left: 100px; " >
+          < div  class = " col-3 " >
+          < form  method = " POST " action = "" >
+                < h1  class = " h3 mb-3 fw-normal " > Login </ h1 >
+                < label  for = " inputEmail " class = " visually-hidden " > Email </ label >
+                {{form.username (class = "form-control", placeholder = "seu login")}}
+                < label  for = " inputPassword " class = " visually-hidden " > Senha </ label > < p > </ p >
+                {{form.password (class = "form-control", placeholder = "sua senha")}}
+                < div  class = " checkbox mb-3 " >
+                  < etiqueta >
+                      {{form.remenberme}} Lembrar de mim
+                  </ label >
+                </ div >
+                < button  class = " w-100 btn btn-lg btn-primary " type = " submit " > Entrar </ button >
+                < p  class = " mt-5 mb-3 text-muted " > & copy; rese7 </ p >
+              {{msg}}
+          </ form >
+
+          </ div >
+      </ div >
+
+</ main >
+< script  src = " https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js " integridade = " sha384-q2kxQ16AaE6UbzuKqyBE9 / u / KzioAlnx2maXQHiDX9d4 / zDPk3 Mp8Od4 + Ib6IU " crossorigin =" anonymous " > </ script >
+    < Roteiro  src = " https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js " integridade =" SHA384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj " crossorigin =" anonymous " > </ script >
+</ body >
+</ html >
