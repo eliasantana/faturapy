@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField
 from wtforms.validators import DataRequired, email
+from hashlib import md5
 
 app = Flask(__name__)
 
@@ -46,9 +47,18 @@ def index():
     loginform = form.username.data
     passwordform = form.password.data
 
-    sql = "SELECT login, senha FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(loginform, passwordform)
-    result = query(sql)
+    if passwordform != None:
+       passwordform = geraHashMd5(passwordform)
+       print('Senh Informada-> {}  - {} '.format(loginform, passwordform))
+
+    sql = "SELECT login, senha, sn_ativo FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(loginform, passwordform)
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+
     lista = list(result)
+
+    print(lista)
 
     if loginform == None and passwordform == None:
         erro = ''
@@ -58,9 +68,10 @@ def index():
     if len(lista) > 0:
         loginDb = result[0]['login']
         passworDb = result[0]['senha']
+        ativo = result[0]['sn_ativo']
 
-        if loginDb == loginform and passworDb == passwordform:
-            return render_template('cadusuario.html')
+        if loginDb == loginform and passworDb == passwordform and ativo=='S':
+            return render_template('dashboard.html')
         else:
             return render_template('index.html', form=form, erro=erro)
     else:
@@ -81,24 +92,38 @@ def cadastrar ():
     cep = cadastro.cep.data
     cidade = cadastro.cidade.data
     uf = cadastro.uf.data
-    snAtivo = 'S'
+    snAtivo = 'N'
     snAdministrador = 'N'
     email = cadastro.login.data
-    login = email
+    login = cadastro.login.data
     password = cadastro.senha.data
-
-
-    if usuario_existe(login, password):
+    hashPassword = geraHashMd5(password)
+    form = LoginForm()
+    erro =''
+    if usuario_existe(login, hashPassword):
+        erro = 'Usuário informado já existe!'
         print('USUÁRIO JÁ EXISTE!')
+
     else:
-        print('executar a pós ferificacao')
         cadastra_usuario(nome, sobrenome, endereco,bairro,cep,cidade,uf,login, password, snAtivo, snAdministrador, email)
+        print('CADASTRO REALIZADO COM SUCESSO!')
 
-    return render_template('cadusuario.html',cadastro=cadastro)
+    return render_template('index.html',form=form, erro=erro)
+
+def geraHashMd5(frase):
+    sql="SELECT MD5('{}') hash FROM DUAL".format(frase)
+    c = mysql.connection.cursor()
+    c.execute(sql)
+    r = c.fetchall()
+    return (r[0]['hash'])
 
 
+
+'''
+    VERIFICA A EXISTENCIA DE UM USUÁRIO NA BASE 
+'''
 def usuario_existe(login, senha):
-    sql = "SELECT login, senha FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(login, senha)
+    sql = "SELECT login, senha, sn_ativo FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(login, senha)
     result = query(sql)
     if len(result) >0:
         return True
@@ -120,7 +145,7 @@ def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, 
         "SN_ADMINISTRADOR," \
         "EMAIL," \
         "DT_CADASTRO) " \
-        "VALUES('{}','{}','{}','{}','{}','{}','{}','{}','md5({})','{}','{}','{}',current_timestamp())"\
+        "VALUES('{}','{}','{}','{}','{}','{}','{}','{}',md5('{}'),'{}','{}','{}',current_timestamp())"\
         .format(nome, sobrenome, endereco,bairro,cep,cidade,uf,login,senha, snAtivo, snAdministrador,email)
 
     mysql.connection.query(sql)
