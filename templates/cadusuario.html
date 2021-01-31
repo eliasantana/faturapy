@@ -24,96 +24,55 @@
     </style>
 </head>
 <body>
-<h2>Cadastro de Usuário</h2>
-<!--
-NM_USUARIO varchar(50)
-SOBRE_NOME varchar(50)
-ENDERECO varchar(50)
-BAIRRO varchar(50)
-CEP varchar(9)
-CIDADE varchar(50)
-UF varchar(2)
-LOGIN varchar(32)
-SENHA varchar(32)
-SN_ATIVO varchar(1)
-SN_ADMINISTRADOR varchar(1)
-EMAIL varchar(200)
-DT_CADASTRO timestamp
 
--->
-<form class="row g-3">
+<div class="container">
+    <h2>Cadastro de Usuário</h2>
+<form class="row g-3" method="post" action="/cadastra">
     <div class="col-md-6">
-        <label for="nome" class="form-label">Nome</label>
-        <input type="text" class="form-control" id="nome">
+        <label class="form-label">Nome</label>
+        {{ cadastro.nome(class="form-control", placeholder="Seu nome") }}
     </div>
     <div class="col-md-6">
-        <label for="sobrenome" class="form-label">Sobrenome</label>
-        <input type="text" class="form-control" id="sobrenome">
+        <label class="form-label">Sobrenome</label>
+         {{ cadastro.sobrenome(class="form-control", placeholder="Sobrenome") }}
     </div>
     <div class="col-4">
-        <label for="endereco" class="form-label">Endereço</label>
-        <input type="text" class="form-control" id="endereco" placeholder="ex: Rua, o, 32">
+        <label class="form-label">Endereço</label>
+       {{ cadastro.endereco(class="form-control", placeholder="ex. Rua O, 32") }}
     </div>
     <div class="col-4">
-        <label for="bairro" class="form-label">Bairro</label>
-        <input type="text" class="form-control" id="bairro" placeholder="bairro">
+        <label class="form-label">Bairro</label>
+        {{ cadastro.bairro(class="form-control", placeholder="Seu bairro") }}
     </div>
     <div class="col-md-4">
-        <label for="cep" class="form-label">CEP</label>
-        <input type="text" class="form-control" id="cep">
+        <label class="form-label">CEP</label>
+       {{ cadastro.cep(class="form-control", placeholder="Seu CEP") }}
     </div>
     <div class="col-md-4">
-        <label for="cidade" class="form-label">Cidade</label>
-        <input type="text" class="form-control" id="cidade" placeholder="Cidade">
+        <label  class="form-label">Cidade</label>
+       {{ cadastro.cidade(class="form-control", placeholder="Sua Cidade") }}
     </div>
     <div class="col-md-2">
         <label for="uf" class="form-label">Estado</label>
-        <select id="uf" class="form-select">
+        {{ cadastro.uf(class="form-control") }}
 
-            <option>AC</option>
-            <option>AL</option>
-            <option>AP</option>
-            <option>AM</option>
-            <option>BA</option>
-            <option>CE</option>
-            <option>ES</option>
-            <option>GO</option>
-            <option>MA</option>
-            <option>MT</option>
-            <option>MS</option>
-            <option>MG</option>
-            <option>PA</option>
-            <option> PB</option>
-            <option> PR</option>
-            <option selected> PE</option>
-            <option> PI</option>
-            <option> RJ</option>
-            <option> RN</option>
-            <option> RS</option>
-            <option> RO</option>
-            <option> RR</option>
-            <option> SC</option>
-            <option> SP</option>
-            <option> SE</option>
-            <option> TO</option>
-            <option> DF</option>
-        </select>
     </div>
     <div class="col-md-3">
-        <label for="login" class="form-label">Login(e-mail)</label>
-        <input type="email" class="form-control" id="login" placeholder="Seu email">
+        <label class="form-label">Login(e-mail)</label>
+        {{ cadastro.email(class="form-control", placeholder="Seu e-mail") }}
     </div>
     <div class="col-md-3">
-            <label for="senha" class="form-label">Password</label>
-            <input type="password" class="form-control" id="senha" placeholder="Sua senha">
+            <label class="form-label">Password</label>
+            {{ cadastro.senha(class="form-control", placeholder="Sua senha") }}
     </div>
     <div class="col-12">
-
   </div>
     <div class="col-12">
         <button type="submit" class="btn btn-primary">Concluir</button>
     </div>
 </form>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
         integrity="sha384-q2kxQ16AaE6UbzuKqyBE9/u/KzioAlnx2maXQHiDX9d4/zp8Ok3f+M7DPm+Ib6IU"
         crossorigin="anonymous"></script>
