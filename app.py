@@ -141,9 +141,7 @@ def geraHashMd5(frase):
 
 @app.route('/email/<usuario>/<idUsuario>', methods=['GET', 'POST'])
 def enviaEmailAtivacao(usuario, idUsuario, destinatario):
-    # msg = Message('{}'.format(mensagem), sender="eliasantanasilva@gmail.com", recipients=['mefib16856@200cai.com'])
-    # msg = Message("Caro {}, para começar a utilizar o sistema será necessário ativar sua conta!! cliue no link abaixo: <p>" \
-    # "<a href='/ativar/{}'>Ativar cadastro!</a>".format(usuario,idUsuario), sender="eliasantanasilva@gmail.com", recipients=['lasibe3476@lovomon.com'])
+
     msg = Message("Ativação de Conta.", sender='{}'.format(destinatario), recipients=['eliasantana@hotmail.com'])
     msg.html="Caro(a) {}, para ativar sua conta clique [<a href='http://127.0.0.1:5000/ativar/{}'> aqui! </a>]".format(usuario,idUsuario)
     mail.send(msg)
@@ -162,8 +160,6 @@ def retornaIDuaurio(login, senha):
 '''
     VERIFICA A EXISTENCIA DE UM USUÁRIO NA BASE 
 '''
-
-
 def usuario_existe(login, senha):
     sql = "SELECT login, senha, sn_ativo FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(login, senha)
     result = query(sql)
@@ -171,6 +167,10 @@ def usuario_existe(login, senha):
         return True
     else:
         return False
+
+@app.route('/dash', methods=['GET'])
+def dash():
+    return render_template('dashboard.html')
 
 
 def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, senha, snAtivo, snAdministrador, email):
