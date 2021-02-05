@@ -2,10 +2,11 @@
 from flask import Flask, render_template, request, jsonify
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField
+from wtforms import StringField, PasswordField, SelectField,FloatField, IntegerField, DateField
 from wtforms.validators import DataRequired, email
 from hashlib import md5
 from flask_mail import Mail, Message
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -32,6 +33,16 @@ class CadastroForm(FlaskForm):
     senha = PasswordField('senha', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
 
+class Lancamento(FlaskForm):
+
+     ds_lancamento=StringField('ds_lancamento', validators=[DataRequired()])
+     vl_previsto=FloatField('vl_previsto', validators=[DataRequired()])
+     vl_realizado=FloatField('vl_realizado', validators=[DataRequired()])
+     parcela=IntegerField('parcela', validators=[DataRequired()])
+     dt_vencimento=DateField('parcela', validators=[DataRequired()])
+     dt_pagamento=DateField('parcela', validators=[DataRequired()])
+     tp_lancamento=SelectField('tp_lancamento', choices=['D','R'])
+     cd_usuario=IntegerField('parcela', validators=[DataRequired()])
 
 def conexao(sql):
     con = mysql.connection.cursor()
@@ -50,7 +61,8 @@ def index():
     form = LoginForm()
     loginform = form.username.data
     passwordform = form.password.data
-
+    data = datetime.now()
+    data = data.strftime("%d/%m/%Y")
     if passwordform != None:
         passwordform = geraHashMd5(passwordform)
         print('Senh Informada-> {}  - {} '.format(loginform, passwordform))
@@ -76,7 +88,7 @@ def index():
         ativo = result[0]['sn_ativo']
 
         if loginDb == loginform and passworDb == passwordform and ativo == 'S':
-            return render_template('dashboard.html')
+            return render_template('dashboard.html', loginform = loginform, data = data)
         else:
             return render_template('index.html', form=form, erro=erro)
     else:
@@ -171,6 +183,7 @@ def usuario_existe(login, senha):
 @app.route('/dash', methods=['GET'])
 def dash():
     return render_template('dashboard.html')
+
 
 
 def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, senha, snAtivo, snAdministrador, email):

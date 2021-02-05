@@ -1,6 +1,6 @@
 
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns="http://www.w3.org/1999/html">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -21,11 +21,13 @@
 
   <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
-      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Fatura</a>
+      <a class="navbar-brand col-sm-3 col-md-2 mr-20" href="#">Fatura - {{ data }}</a>
       <input class="form-control form-control-dark w-100" type="text" placeholder="Localizar" aria-label="Search">
+      <label class="text-white bg-dark">{{ loginform }}</label>
+
       <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-          <a class="nav-link" href="#">Sair</a>
+          <a class="nav-link" href="/">Sair</a>
         </li>
       </ul>
     </nav>
@@ -54,9 +56,9 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/cadusuario">
                   <span data-feather="users"></span>
-                  Customers
+                  Usuários
                 </a>
               </li>
               <li class="nav-item">
