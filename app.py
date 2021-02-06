@@ -184,7 +184,10 @@ def usuario_existe(login, senha):
 def dash():
     return render_template('dashboard.html')
 
-
+@app.route('/lancamento', methods=['GET','POST'])
+def exibelancamento():
+    form = Lancamento()
+    return render_template('lancamentos.html',form=form)
 
 def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, senha, snAtivo, snAdministrador, email):
     sql = "INSERT INTO dbfat.usuario(" \
@@ -228,3 +231,4 @@ if __name__ == '__main__':
     mail.init_app(app)
 
     app.run(debug=True)
+
