@@ -4,11 +4,12 @@ from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField,FloatField, IntegerField, DateField
 from wtforms.validators import DataRequired, email
-from hashlib import md5
 from flask_mail import Mail, Message
 from datetime import datetime
 
 app = Flask(__name__)
+
+
 
 
 class LoginForm(FlaskForm):
@@ -41,7 +42,7 @@ class Lancamento(FlaskForm):
      parcela=IntegerField('parcela', validators=[DataRequired()])
      dt_vencimento=DateField('parcela', validators=[DataRequired()])
      dt_pagamento=DateField('parcela', validators=[DataRequired()])
-     tp_lancamento=SelectField('tp_lancamento', choices=['D','R'])
+     tp_lancamento=SelectField('tp_lancamento', choices=[('D','Despesa'),('R','Receita')])
      cd_usuario=IntegerField('parcela', validators=[DataRequired()])
 
 def conexao(sql):
@@ -54,6 +55,17 @@ def query(sql):
     conn.execute(sql)
     result = conn.fetchall()
     return result
+
+
+def retornaIDusuarioLogado(login):
+    sql="SELECT CD_USUARIO FROM DBFAT.USUARIO WHERE LOGIN = '{}'".format(login)
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    lista = list(result)
+
+    return lista[0]['CD_USUARIO']
+
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -86,9 +98,10 @@ def index():
         loginDb = result[0]['login']
         passworDb = result[0]['senha']
         ativo = result[0]['sn_ativo']
+        idusuario = retornaIDusuarioLogado(loginDb)
 
         if loginDb == loginform and passworDb == passwordform and ativo == 'S':
-            return render_template('dashboard.html', loginform = loginform, data = data)
+            return render_template('dashboard.html', loginform = loginform, data = data, idusuario=idusuario)
         else:
             return render_template('index.html', form=form, erro=erro)
     else:
@@ -168,6 +181,31 @@ def retornaIDuaurio(login, senha):
 
     return resul[0]['cd_usuario']
 
+def adicionaLancamento():
+    sql="INSERT INTO (ds_lancamento " \
+        "vl_previsto, " \
+        "vl_realizado, " \
+        "parcela, " \
+        "dt_vencimento, " \
+        "tp_lancamento, " \
+        "CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}','{}');"
+
+    conn = mysql.connection.query(sql)
+    mysql.connection.commit()
+
+
+def lista_lancamentos(idusuario):
+    sql = "SELECT  ds_lancamento, format(vl_previsto,2,'de_DE') vl_previsto, " \
+          "format(vl_realizado,2,'de_DE') vl_realizado, " \
+          "parcela, " \
+          "dt_vencimento, " \
+          "tp_lancamento, " \
+          "CD_USUARIO  " \
+          "FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {}".format(idusuario)
+
+    result = query(sql)
+    lista = list(result)
+    return lista
 
 '''
     VERIFICA A EXISTENCIA DE UM USUÁRIO NA BASE 
@@ -184,10 +222,27 @@ def usuario_existe(login, senha):
 def dash():
     return render_template('dashboard.html')
 
-@app.route('/lancamento', methods=['GET','POST'])
-def exibelancamento():
+@app.route('/lancamento/<int:idusuario>', methods=['GET','POST'])
+def exibelancamento(idusuario):
     form = Lancamento()
-    return render_template('lancamentos.html',form=form)
+
+
+    sql = "SELECT  ds_lancamento, format(vl_previsto,2,'de_DE') vl_previsto, " \
+          "format(vl_realizado,2,'de_DE') vl_realizado, " \
+          "parcela, " \
+          "dt_vencimento, " \
+          "tp_lancamento, " \
+          "CD_USUARIO  " \
+          "FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {}".format(idusuario)
+
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    lista = list(result)
+
+
+
+    return render_template('lancamentos.html',form=form, lista=lista)
 
 def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, senha, snAtivo, snAdministrador, email):
     sql = "INSERT INTO dbfat.usuario(" \
