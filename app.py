@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify, session, request, redirect, url_for
 from flask_mysqldb import MySQL
 from flask_wtf import FlaskForm
+from jinja2.filters import do_trim
+from werkzeug.utils import redirect
 from wtforms import StringField, PasswordField, SelectField,FloatField, IntegerField, DateField
 from wtforms.validators import DataRequired, email
 from flask_mail import Mail, Message
@@ -77,9 +79,9 @@ def index():
     data = data.strftime("%d/%m/%Y")
     if passwordform != None:
         passwordform = geraHashMd5(passwordform)
-        print('Senh Informada-> {}  - {} '.format(loginform, passwordform))
+        #print('Senh Informada-> {}  - {} '.format(loginform, passwordform))
 
-    sql = "SELECT login, senha, sn_ativo FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(loginform,
+    sql = "SELECT cd_usuario, login, senha, sn_ativo FROM dbfat.usuario WHERE login = '{}' AND senha = '{}'".format(loginform,
                                                                                                         passwordform)
     conn = mysql.connection.cursor()
     conn.execute(sql)
@@ -88,6 +90,7 @@ def index():
     lista = list(result)
 
     print(lista)
+
 
     if loginform == None and passwordform == None:
         erro = ''
@@ -99,7 +102,7 @@ def index():
         passworDb = result[0]['senha']
         ativo = result[0]['sn_ativo']
         idusuario = retornaIDusuarioLogado(loginDb)
-
+        session['idUsuario'] = idusuario
         if loginDb == loginform and passworDb == passwordform and ativo == 'S':
             return render_template('dashboard.html', loginform = loginform, data = data, idusuario=idusuario)
         else:
@@ -181,18 +184,6 @@ def retornaIDuaurio(login, senha):
 
     return resul[0]['cd_usuario']
 
-def adicionaLancamento():
-    sql="INSERT INTO (ds_lancamento " \
-        "vl_previsto, " \
-        "vl_realizado, " \
-        "parcela, " \
-        "dt_vencimento, " \
-        "tp_lancamento, " \
-        "CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}','{}');"
-
-    conn = mysql.connection.query(sql)
-    mysql.connection.commit()
-
 
 def lista_lancamentos(idusuario):
     sql = "SELECT  ds_lancamento, format(vl_previsto,2,'de_DE') vl_previsto, " \
@@ -220,29 +211,71 @@ def usuario_existe(login, senha):
 
 @app.route('/dash', methods=['GET'])
 def dash():
-    return render_template('dashboard.html')
+    idusuario = session['idUsuario']
+    return render_template('dashboard.html',idusuario=idusuario)
 
 @app.route('/lancamento/<int:idusuario>', methods=['GET','POST'])
 def exibelancamento(idusuario):
     form = Lancamento()
+    lista  = retorna_lista_lancamentos(idusuario)
+    return render_template('lancamentos.html',form=form, lista=lista, idusuario=idusuario)
 
-
+def retorna_lista_lancamentos(idusuario):
+    '''
+    Retorna uma a lista de lançamentos
+    '''
     sql = "SELECT  ds_lancamento, format(vl_previsto,2,'de_DE') vl_previsto, " \
           "format(vl_realizado,2,'de_DE') vl_realizado, " \
           "parcela, " \
           "dt_vencimento, " \
           "tp_lancamento, " \
-          "CD_USUARIO  " \
-          "FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {}".format(idusuario)
+          "CD_USUARIO,  " \
+          "CD_LANCAMENTO FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {}".format(idusuario)
 
     conn = mysql.connection.cursor()
     conn.execute(sql)
     result = conn.fetchall()
     lista = list(result)
+    print(lista)
+    return lista
 
 
+@app.route('/excluilancamento/<int:idlancamento>',methods=['GET','POST'])
+def excluir(idlancamento):
+    '''
+        Excluir um vencimento
+    '''
+    form = Lancamento()
+    sql="DELETE FROM DBFAT.LANCAMENTOS WHERE CD_LANCAMENTO = {}".format(idlancamento)
+    mysql.connection.query(sql)
+    mysql.connection.commit()
+    idusuario = session['idUsuario']
+    print('Sessão: {}'.format(idusuario))
+    lista = retorna_lista_lancamentos(idusuario)
+    return render_template('lancamentos.html',form=form,idusuario=idusuario, lista=lista)
 
-    return render_template('lancamentos.html',form=form, lista=lista)
+
+@app.route('/adiciona/<int:idusuario>',methods=['GET','POST'])
+def adicionar_lancamento(idusuario):
+    '''
+        Adiciona e retorna uma lista de lançamentos
+    '''
+    form = Lancamento()
+    ds_lancamento = form.ds_lancamento.data
+    vl_previsto = form.vl_previsto.data
+    vl_realizado = form.vl_realizado.data
+    parcela= form.parcela.data
+    dt_vencimento = request.form['calendario']
+    tp_lancamento = form.tp_lancamento.data
+    cd_usuario = form.cd_usuario.data
+    dt_vencimento = datetime.strptime(dt_vencimento,"%d/%m/%Y")
+
+    sql="INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}','{}')".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
+    mysql.connection.query(sql)
+    mysql.connection.commit()
+
+    lista = retorna_lista_lancamentos(idusuario)
+    return render_template('lancamentos.html', form=form, idusuario=idusuario, lista=lista)
 
 def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, senha, snAtivo, snAdministrador, email):
     sql = "INSERT INTO dbfat.usuario(" \

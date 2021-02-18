@@ -4,6 +4,36 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link href="signin.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+    <script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+
+    <script>
+
+        jQuery(function($){
+        $.datepicker.regional['pt-BR'] = {
+                closeText: 'Fechar',
+                prevText: '&#x3c;Anterior',
+                nextText: 'Pr&oacute;ximo&#x3e;',
+                currentText: 'Hoje',
+                monthNames: ['Janeiro','Fevereiro','Mar&ccedil;o','Abril','Maio','Junho',
+                'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+                monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun',
+                'Jul','Ago','Set','Out','Nov','Dez'],
+                dayNames: ['Domingo','Segunda-feira','Ter&ccedil;a-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sabado'],
+                dayNamesShort: ['D','S','T','Q','Q','S','S'],
+                dayNamesMin: ['D','S','T','Q','Q','S','S'],
+                weekHeader: 'Sm',
+                dateFormat: 'dd/mm/yy',
+                firstDay: 0,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: ''};
+        $.datepicker.setDefaults($.datepicker.regional['pt-BR']);
+});
+
+    </script>
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -18,19 +48,22 @@
           font-size: 3.5rem;
         }
       }
-
-
-
     </style>
+    <style>
+        div.ui-datepicker{
+        font-size:12px;
+}
+    </style>
+
 </head>
 <body>
 
 <div class="container">
     <h2>Lançamentos</h2>
-<form class="row g-3" method="post" action="/cadastra">
+<form class="row g-3" method="post" action="/adiciona/{{idusuario}}">
     <div class="col-md-4">
         <label class="form-label">Lançamento</label>
-        {{ form.ds_lancamento(class="form-control", placeholder="ex. Conta de água") }}
+        {{ form.ds_lancamento(class="form-control", placeholder="ex. Conta de Água") }}
     </div>
     <div class="col-md-2">
         <label class="form-label">Valor Previsto</label>
@@ -40,19 +73,19 @@
         <label class="form-label">Valor Realizado</label>
         {{ form.vl_realizado(class="form-control", placeholder="0,00") }}
     </div>
-    <div class="col-12">
-        <label class="form-label">Parcela</label>
-    </div>
-    <div class="col-1">
-        {{ form.parcela(class="form-control", placeholder="ex: 1") }}
-    </div>
-    <div class="col-12">
-         <label class="form-label">Data de Vencimento</label>
-    </div>
-    <div class="col-md-4">
+    <div class="col-4">
 
-        {{ form.dt_vencimento(class="form-control") }}
     </div>
+    <div class="col-2">
+        <label class="form-label">Parcela</label>
+          {{ form.parcela(class="form-control", placeholder="ex: 1") }}
+    </div>
+
+    <div class="col-2">
+         <label class="form-label">Data de Vencimento</label>
+         <input type="text" class="form-control" id="calendario" name="calendario" >
+    </div>
+   
     <div>
         <label  class="form-label">Tipo de Lançamento</label>
     </div>
@@ -62,18 +95,42 @@
     </div>
 
     <div class="col-12">
-        <button type="submit" class="btn btn-primary">Adicionar</button>
+
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+          Salvar
+        </button>
         <a class="btn btn-warning" href="/dash">Voltar</a>
     </div>
     <div class="col-12">
         <h3>lançamentos </h3>
     </div>
+ <!-- Inicio da Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Atenção?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  Deseja realmente salvar estes dados?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Não</button>
+                <button type="submit" class="btn btn-primary">Sim</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    <!-- Fim Modal -->
         </form>
             <div class="col-12">
                 <table class="table table-hover">
           <thead>
             <tr>
-              <th scope="col">#</th>
+              <th scope="col">Código</th>
               <th scope="col" >Descrição</th>
               <th scope="col"style="text-align:right;">Previsto</th>
               <th scope="col" style="text-align:right;">Realizado</th>
@@ -85,13 +142,12 @@
           <tbody>
           {% for l in lista %}
                 <tr>
-                    <td>#</td>
+                    <td>{{l.CD_LANCAMENTO}}</td>
                     <td >{{l.ds_lancamento}}</td>
                     <td style="text-align:right;">{{l.vl_previsto}}</td>
                     <td style="text-align:right;">{{l.vl_realizado}}</td>
                     <td style="text-align:center;">{{l.parcela}}</td>
                     <td>
-
                         {% if l.tp_lancamento == 'D' %}
                             Despesa
                         {% else %}
@@ -100,18 +156,17 @@
                     </td>
                     <!-- Botão Excluir-->
                     <td>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                          <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                        </svg>
-                    <!-- Botão Editar-->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
-                          <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
-                        </svg>
+                        <a href="/excluilancamento/{{ l.CD_LANCAMENTO }}">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModalCenter"> Excluir</button>
+                        </a>
+                        <a href="/editar/{{ l.CD_LANCAMENTO }}">
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#exampleModalCenter"> Editar</button>
+                        </a>
                     </td>
-
                 </tr>
           {% endfor %}
+
+
           </tbody>
         </table>
     </div>
@@ -123,7 +178,46 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.min.js"
         integrity="sha384-pQQkAEnwaBkjpqZ8RU1fF1AKtTcHJwFl3pblpTlHXybJjHpMYo79HY3hIi4NKxyj"
         crossorigin="anonymous"></script>
+<script type="text/javascript">
+$(function() {
+    $( "#calendario" ).datepicker();
 
+});
+</script>
+<script type="text/javascript">
+$(function() {
+    $("#calendario").datepicker({dateFormat: 'dd/mm/yy'});
+
+});
+</script>
+<!-- Seleciona outros meses do ano -->
+<script type="text/javascript">
+$(function() {
+    $("#calendario").datepicker({
+        changeMonth: true,
+        changeYear: true
+    });
+});
+</script>
+
+<script type="text/javascript">
+
+$( "#calendario" ).datepicker({
+  showButtonPanel: true
+});
+
+</script>
+<script>
+    $( "#calendario" ).datepicker({
+  autoSize: true
+});
+</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
 </body>
 </html>
