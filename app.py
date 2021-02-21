@@ -51,6 +51,17 @@ def conexao(sql):
     con = mysql.connection.cursor()
     con.execute(sql)
 
+def existe_lancamento(idlancamento):
+    sql = 'SELECT 1 CD_LANCAMENTO  FROM dbfat.lancamentos WHERE CD_LANCAMENTO ={}'.format(idlancamento)
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    lista = list(result)
+    if len(lista) > 0:
+        return True
+    else:
+        return False
+
 
 def query(sql):
     conn = mysql.connection.cursor()
@@ -209,10 +220,50 @@ def usuario_existe(login, senha):
     else:
         return False
 
+@app.route('/editar/<int:idlancamento>')
+def edita_lancamento(idlancamento):
+    '''
+    Retorna retorna o formulário com os dados carregados.
+    '''
+    lista = localiza_lancametno(idlancamento)
+    form = Lancamento()
+    print(lista)
+
+    idusuario = session['idUsuario']
+    session['idlancamento'] = lista[0]['cd_lancamento']
+    form.ds_lancamento.data= lista[0]['ds_lancamento']
+    form.parcela.data = lista[0]['parcela']
+    form.vl_previsto.data = lista[0]['vl_previsto']
+    form.vl_realizado.data = lista[0]['vl_realizado']
+    form.dt_vencimento.data = lista[0]['dt_vencimento']
+
+    return render_template('lancamentos.html', form=form, idusuario=idusuario)
+
+
+def localiza_lancametno(idlancamento):
+    '''
+    Localiza um lançamento filtrando pelo cd_lancamento
+    '''
+    sql = "select cd_lancamento, " \
+          "ds_lancamento, " \
+          "vl_previsto, " \
+          "vl_realizado, " \
+          "parcela, " \
+          "tp_lancamento, " \
+          "cd_usuario, dt_vencimento from dbfat.lancamentos where CD_lancamento = {}".format(idlancamento)
+
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    lista = list(result)
+
+    return lista
+
 @app.route('/dash', methods=['GET'])
 def dash():
     idusuario = session['idUsuario']
     return render_template('dashboard.html',idusuario=idusuario)
+
 
 @app.route('/lancamento/<int:idusuario>', methods=['GET','POST'])
 def exibelancamento(idusuario):
@@ -269,7 +320,7 @@ def adicionar_lancamento(idusuario):
     tp_lancamento = form.tp_lancamento.data
     cd_usuario = form.cd_usuario.data
     dt_vencimento = datetime.strptime(dt_vencimento,"%d/%m/%Y")
-
+    
     sql="INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}','{}')".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
     mysql.connection.query(sql)
     mysql.connection.commit()
