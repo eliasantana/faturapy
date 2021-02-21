@@ -231,6 +231,7 @@ def edita_lancamento(idlancamento):
 
     idusuario = session['idUsuario']
     session['idlancamento'] = lista[0]['cd_lancamento']
+
     form.ds_lancamento.data= lista[0]['ds_lancamento']
     form.parcela.data = lista[0]['parcela']
     form.vl_previsto.data = lista[0]['vl_previsto']
@@ -309,7 +310,7 @@ def excluir(idlancamento):
 @app.route('/adiciona/<int:idusuario>',methods=['GET','POST'])
 def adicionar_lancamento(idusuario):
     '''
-        Adiciona e retorna uma lista de lançamentos
+        Adiciona ou altera um lancamento
     '''
     form = Lancamento()
     ds_lancamento = form.ds_lancamento.data
@@ -320,10 +321,21 @@ def adicionar_lancamento(idusuario):
     tp_lancamento = form.tp_lancamento.data
     cd_usuario = form.cd_usuario.data
     dt_vencimento = datetime.strptime(dt_vencimento,"%d/%m/%Y")
-    
-    sql="INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}','{}')".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
-    mysql.connection.query(sql)
-    mysql.connection.commit()
+    cd_lancamento = session['idlancamento']
+
+    if existe_lancamento(session['idlancamento']):
+        sql="UPDATE DBFAT.LANCAMENTOS SET ds_lancamento='{}', " \
+            "vl_previsto='{}', vl_realizado='{}', parcela='{}', " \
+            "dt_vencimento='{}', tp_lancamento='{}' " \
+            "WHERE CD_USUARIO='{}' AND CD_LANCAMENTO='{}'".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario, cd_lancamento)
+        print(sql)
+        mysql.connection.query(sql)
+        mysql.connection.commit()
+    else:
+        sql="INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}',{},{})".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
+        print(sql)
+        mysql.connection.query(sql)
+        mysql.connection.commit()
 
     lista = retorna_lista_lancamentos(idusuario)
     return render_template('lancamentos.html', form=form, idusuario=idusuario, lista=lista)
