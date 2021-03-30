@@ -114,7 +114,50 @@ def index():
         idusuario = retornaIDusuarioLogado(loginDb)
         session['idUsuario'] = idusuario
         if loginDb == loginform and passworDb == passwordform and ativo == 'S':
-            return render_template('dashboard.html', loginform=loginform, data=data, idusuario=idusuario)
+            lcto = retorna_lancamento_ano_atual(idusuario)
+            resumo = resumo_mensal(idusuario)
+
+            valores = list()
+            ''' Separa meses e valores em listas diferentes '''
+            meses = ""
+            valor_str = ""
+            lista = ['0','0','0','0','0','0','0','0','0','0','0','0','0']
+
+            for i in range(len(resumo)):
+                mes = str((resumo[i]['mes']))
+                valor = str((resumo[i]['total']))
+                if mes == 'Jan':
+                    lista[0]=valor
+                elif mes =='Fev':
+                    lista[1]=valor
+                elif mes =='Mar':
+                    lista[2]=valor
+                elif mes == 'Abr':
+                    lista[3]=valor
+                elif mes == 'Mai':
+                    lista[4]=valor
+                elif mes == 'Jun':
+                    lista[5]=valor
+                elif mes == 'Jul':
+                    lista[6]=valor
+                if mes == 'Ago':
+                    lista[7]=valor
+                elif mes =='Set':
+                    lista[8]=valor
+                elif mes =='Out':
+                    lista[9]=valor
+                elif mes == 'Nov':
+                    lista[10]=valor
+                elif mes == 'Dez':
+                    lista[11]=valor
+
+
+                #valor_str = valor_str + valor+","
+
+            valores = ",".join(lista)
+            print (lista)
+            print(valores)
+            return render_template('dashboard.html', loginform=loginform, lcto=lcto, data=data, idusuario=idusuario, meses=meses, valores=valores)
         else:
             return render_template('index.html', form=form, erro=erro)
     else:
@@ -283,6 +326,7 @@ def alterarDados():
 
     return render_template('lancamentos.html', form=form, lista=lista, idusuario=idusuario)
 
+
 def localiza_lancametno(idlancamento):
     '''
     Localiza um lançamento filtrando pelo cd_lancamento
@@ -337,6 +381,39 @@ def retorna_lista_lancamentos(idusuario):
     print(lista)
     return lista
 
+
+def retorna_lancamento_ano_atual(cd_usuario):
+    '''
+        Retorna os lancamentos por usuário no ano corrente agrupados por data de pagamento
+    '''
+    sql = "SELECT " \
+          "ds_lancamento, " \
+          "format(vl_previsto,2,'de_DE') 'previsto', " \
+          "format(vl_realizado,2,'de_DE') 'realizado', " \
+          "parcela, date_format(dt_vencimento,'%d/%m/%Y') 'vencimento', " \
+          "date_format(dt_pagamento,'%d/%m/%Y') 'pago', " \
+          "case when tp_lancamento = 'D' then " \
+          "'Despesa' " \
+          "else 'Receita' " \
+          "end as 'lancamento'" \
+          "FROM dbfat.lancamentos " \
+          "where cd_usuario = {} and date_format(dt_pagamento,'Y') = date_format(curdate(),'Y') " \
+          "order by dt_pagamento".format(cd_usuario)
+
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    lista = list(result)
+    return lista
+
+def resumo_mensal(id_usuario):
+    sql= "select case when date_format(dt_pagamento, '%m') = 1 then 'Jan' when date_format(dt_pagamento, '%m') = 2 then 'Fev' when date_format(dt_pagamento, '%m') = 3 then 'Mar' when date_format(dt_pagamento, '%m') = 4 then 'Abr' when date_format(dt_pagamento, '%m') = 5 then 'Mai' when date_format(dt_pagamento, '%m') = 6 then 'Jun' when date_format(dt_pagamento, '%m') = 7 then 'Jul' when date_format(dt_pagamento, '%m') = 8 then 'Ago' when date_format(dt_pagamento, '%m') = 9 then 'Set' when date_format(dt_pagamento, '%m') = 10 then 'Out' when date_format(dt_pagamento, '%m') = 11 then 'Nov' when date_format(dt_pagamento, '%m') = 12 then 'Dez' else date_format(dt_pagamento, '%m') end as mes, sum(vl_realizado) total from dbfat.lancamentos where CD_USUARIO = {} and date_format(dt_pagamento,'Y') = date_format(curdate(),'Y') group by date_format(dt_pagamento,'%m')".format(id_usuario)
+    conn = mysql.connection.cursor()
+    conn.execute(sql)
+    result = conn.fetchall()
+    resumo = list(result)
+
+    return resumo
 
 @app.route('/excluilancamento/<int:idlancamento>', methods=['GET', 'POST'])
 def excluir(idlancamento):
@@ -399,6 +476,15 @@ def cadastra_usuario(nome, sobrenome, endereco, bairro, cep, cidade, uf, login, 
 
     mysql.connection.query(sql)
     mysql.connection.commit()
+
+@app.route('/teste',methods=['GET','POST'])
+def teste():
+    resumo = resumo_mensal(26)
+    meses =""
+    for i in range(len(resumo)):
+        mes = str(resumo[i]['mes'])
+        meses = meses + mes+","
+    return meses
 
 
 if __name__ == '__main__':
