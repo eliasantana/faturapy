@@ -6,6 +6,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <link href="signin.css" rel="stylesheet">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -22,14 +23,18 @@
       }
     </style>
 </head>
-<body>
+<body id="container">
+<div class="container-sm" align="center" style="position: absolute; height: 116px; top: 20px; width: 100%; left:100px;">
+ <img src="./../static/logo2.gif" width="200px" height="200px">
+</div>
 <main class="form-signin">
 
       <div class="container-sm" align="center" style="position: absolute; height: 116px; top: 200px; width: 100%; left:100px;">
+
           <div class="col-3">
           <form method="POST" action="">
 
-                <h1 class="h3 mb-3 fw-normal">Identifique-se</h1>
+                <h1 class="h3 mb-3 fw-normal">""</h1>
                 <label for="inputEmail" id ="inputEmail" class="visually-hidden">Email</label>
                 {{ form.username(class="form-control", placeholder="login") }}
                 <label for="inputPassword" id="inputPassword" class="visually-hidden">Senha</label><p></p>
@@ -41,10 +46,10 @@
                 </div>
                 <button class="w-100 btn btn-lg btn-primary" type="submit">Entrar</button>
               <div>
-                  <a href="/cadusuario">Cadastrar</a>
+                  <a href="/cadusuario" style="color:black;">Não sou cadastrado</a>
               </div>
-                <p class="mt-5 mb-3 text-muted">&copy; rese7</p>
-              <p class="h6"><font color="red">{{ erro }}</font></p>
+                <p class="mt-5 mb-3 text-muted">&copy; rese7 - todos os direitos reservados </p>
+                <p class="h6"><font color="red">{{ erro }}</font></p>
           </form>
 
           </div>

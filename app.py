@@ -372,7 +372,8 @@ def retorna_lista_lancamentos(idusuario):
           "dt_vencimento, " \
           "tp_lancamento, " \
           "CD_USUARIO,  " \
-          "CD_LANCAMENTO FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {}".format(idusuario)
+          "CD_LANCAMENTO FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {} " \
+          "AND date_format(dt_pagamento,'%m') = date_format(curdate(),'%m')".format(idusuario)
 
     conn = mysql.connection.cursor()
     conn.execute(sql)
@@ -446,8 +447,7 @@ def adicionar_lancamento(idusuario):
     dt_vencimento = datetime.strptime(dt_vencimento, "%d/%m/%Y")
     id_lancamento = session['idlancamento']
 
-    sql = "INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}',{})".format(
-        ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
+    sql = "INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}',{})".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
     print(sql)
     mysql.connection.query(sql)
     mysql.connection.commit()
@@ -507,3 +507,4 @@ if __name__ == '__main__':
     mail.init_app(app)
 
     app.run(debug=True)
+
