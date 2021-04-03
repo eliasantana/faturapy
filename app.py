@@ -100,7 +100,7 @@ def index():
 
     lista = list(result)
 
-    print(lista)
+    #print(lista)
 
     if loginform == None and passwordform == None:
         erro = ''
@@ -152,11 +152,8 @@ def index():
                     lista[11]=valor
 
 
-                #valor_str = valor_str + valor+","
-
             valores = ",".join(lista)
-            print (lista)
-            print(valores)
+            # Index
             return render_template('dashboard.html', loginform=loginform, lcto=lcto, data=data, idusuario=idusuario, meses=meses, valores=valores)
         else:
             return render_template('index.html', form=form, erro=erro)
@@ -350,10 +347,52 @@ def localiza_lancametno(idlancamento):
 
 @app.route('/dash', methods=['GET'])
 def dash():
+    form = LoginForm()
+    data = datetime.now()
+    data = data.strftime("%d/%m/%Y")
     idusuario = session['idUsuario']
 
-    return render_template('dashboard.html', idusuario=idusuario)
+    ''' Resumo mensal das despesas '''
+    resumo = resumo_mensal(idusuario)
+    ''' Separa meses e valores em listas diferentes '''
+    meses = ""
+    valor_str = ""
+    lista = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0']
 
+    for i in range(len(resumo)):
+        mes = str((resumo[i]['mes']))
+        valor = str((resumo[i]['total']))
+        if mes == 'Jan':
+            lista[0] = valor
+        elif mes == 'Fev':
+            lista[1] = valor
+        elif mes == 'Mar':
+            lista[2] = valor
+        elif mes == 'Abr':
+            lista[3] = valor
+        elif mes == 'Mai':
+            lista[4] = valor
+        elif mes == 'Jun':
+            lista[5] = valor
+        elif mes == 'Jul':
+            lista[6] = valor
+        if mes == 'Ago':
+            lista[7] = valor
+        elif mes == 'Set':
+            lista[8] = valor
+        elif mes == 'Out':
+            lista[9] = valor
+        elif mes == 'Nov':
+            lista[10] = valor
+        elif mes == 'Dez':
+            lista[11] = valor
+
+    valores = ",".join(lista)
+
+    lcto = retorna_lancamento_ano_atual(idusuario)
+    #aqui
+    return render_template('dashboard.html', form=form, lcto=lcto, data=data, idusuario=idusuario, meses=meses,valores=valores)
+    #return render_template('dashboard.html', loginform=loginform, lcto=lcto, data=data, idusuario=idusuario, meses=meses, valores=valores)
 
 @app.route('/lancamento/<int:idusuario>', methods=['GET', 'POST'])
 def exibelancamento(idusuario):
@@ -364,7 +403,9 @@ def exibelancamento(idusuario):
 
 def retorna_lista_lancamentos(idusuario):
     '''
-    Retorna uma a lista de lançamentos
+    Desde:03-03-2021
+    Autor: Elias Santana
+    Retorna uma a lista de lançamentos do mês atual
     '''
     sql = "SELECT  ds_lancamento, format(vl_previsto,2,'de_DE') vl_previsto, " \
           "format(vl_realizado,2,'de_DE') vl_realizado, " \
@@ -373,7 +414,7 @@ def retorna_lista_lancamentos(idusuario):
           "tp_lancamento, " \
           "CD_USUARIO,  " \
           "CD_LANCAMENTO FROM DBFAT.LANCAMENTOS WHERE CD_USUARIO = {} " \
-          "AND date_format(dt_pagamento,'%m') = date_format(curdate(),'%m')".format(idusuario)
+          "AND date_format(dt_vencimento,'%m') = date_format(curdate(),'%m')".format(idusuario)
 
     conn = mysql.connection.cursor()
     conn.execute(sql)
@@ -442,12 +483,13 @@ def adicionar_lancamento(idusuario):
     vl_realizado = form.vl_realizado.data
     parcela = form.parcela.data
     dt_vencimento = request.form['calendario']
+    dt_vencimeSnto = datetime.strptime(dt_vencimento, "%d/%m/%Y").date()
+    print(dt_vencimeSnto)
     tp_lancamento = form.tp_lancamento.data
     cd_usuario = form.cd_usuario.data
-    dt_vencimento = datetime.strptime(dt_vencimento, "%d/%m/%Y")
-    id_lancamento = session['idlancamento']
-
-    sql = "INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}','{}','{}','{}','{}','{}',{})".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, idusuario)
+    #print(dt_vencimento)
+    #id_lancamento = session['idlancamento']
+    sql = "INSERT INTO DBFAT.LANCAMENTOS (ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimento, tp_lancamento, CD_USUARIO) VALUES ('{}',{},{},{},'{}','{}',{})".format(ds_lancamento, vl_previsto, vl_realizado, parcela, dt_vencimeSnto, tp_lancamento, idusuario)
     print(sql)
     mysql.connection.query(sql)
     mysql.connection.commit()
