@@ -150,8 +150,17 @@
                        <td align="right">{{ t.realizado }}</td>
                        <td align="center">{{ t.parcela }}</td>
                        <td>{{ t.vencimento }}</td>
-                       <td>{{ t.pago }}</td>
-                       <td>{{ t.lancamento }}</td>
+                      {% if t.pago == None %}
+                        <td></td>
+                      {% else %}
+                        <td>{{ t.pago }}</td>
+                      {% endif %}
+                      {% if t.lancamento=='Receita' %}
+                           <td bgcolor="#32CD32">{{ t.lancamento }}</td>
+                      {% else %}
+                          <td bgcolor="#FF3030">{{ t.lancamento }}</td>
+                      {% endif %}
+
                     </tr>
                   {% endfor %}
               </tbody>

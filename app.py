@@ -439,7 +439,7 @@ def retorna_lancamento_ano_atual(cd_usuario):
           "else 'Receita' " \
           "end as 'lancamento'" \
           "FROM dbfat.lancamentos " \
-          "where cd_usuario = {} and date_format(dt_pagamento,'Y') = date_format(curdate(),'Y') " \
+          "where cd_usuario = {} and date_format(dt_pagamento,'Y') = date_format(curdate(),'Y') or dt_pagamento is null " \
           "order by dt_pagamento".format(cd_usuario)
 
     conn = mysql.connection.cursor()
@@ -449,6 +449,12 @@ def retorna_lancamento_ano_atual(cd_usuario):
     return lista
 
 def resumo_mensal(id_usuario):
+    '''
+    Author: Elias Santana
+    Desde:01/04/2021
+    Descrição: Retorna a soma dos valores pagos no mes corrente.
+    Local de Utilização: Fornece valores para o gráfico da DashBoard.
+    '''
     sql= "select case when date_format(dt_pagamento, '%m') = 1 then 'Jan' when date_format(dt_pagamento, '%m') = 2 then 'Fev' when date_format(dt_pagamento, '%m') = 3 then 'Mar' when date_format(dt_pagamento, '%m') = 4 then 'Abr' when date_format(dt_pagamento, '%m') = 5 then 'Mai' when date_format(dt_pagamento, '%m') = 6 then 'Jun' when date_format(dt_pagamento, '%m') = 7 then 'Jul' when date_format(dt_pagamento, '%m') = 8 then 'Ago' when date_format(dt_pagamento, '%m') = 9 then 'Set' when date_format(dt_pagamento, '%m') = 10 then 'Out' when date_format(dt_pagamento, '%m') = 11 then 'Nov' when date_format(dt_pagamento, '%m') = 12 then 'Dez' else date_format(dt_pagamento, '%m') end as mes, sum(vl_realizado) total from dbfat.lancamentos where CD_USUARIO = {} and date_format(dt_pagamento,'Y') = date_format(curdate(),'Y') group by date_format(dt_pagamento,'%m')".format(id_usuario)
     conn = mysql.connection.cursor()
     conn.execute(sql)
