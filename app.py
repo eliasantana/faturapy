@@ -532,7 +532,7 @@ def teste():
     for i in range(len(resumo)):
         mes = str(resumo[i]['mes'])
         meses = meses + mes+","
-    return meses
+    return render_template('teste.html')
 
 
 if __name__ == '__main__':

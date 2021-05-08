@@ -3,8 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+
+
 </head>
 <body>
+     <table id="example" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>ZIP / Post code</th>
+                <th>Country</th>
+            </tr>
+        <tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
+        <tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
+        <tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
+        <tr>
+            <td>Antonio</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
+        <tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
+        <tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr><tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr><tr>
+            <td>Elias</td>
+            <td>Santana</td>
+            <td>Silva</td>
+            <td>54430-160</td>
+            <td>Carpina</td>
+        </tr>
 
+
+
+        </thead>
+
+</table>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+     <script sr="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/dataTables.jqueryui.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/2.0.3/js/dataTables.scroller.min.js"></script>
+
+     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.css"/>
+
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.24/datatables.min.js"></script>
+
+<script>
+      $(document).ready(function() {
+    $('#example').DataTable( {
+        ajax:           "../data/2500.txt",
+        deferRender:    true,
+        scrollY:        200,
+        scrollCollapse: true,
+        scroller:       true
+    } );
+} );
+</script>
 </body>
 </html>
